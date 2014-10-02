@@ -15,3 +15,6 @@ class AccessToken(object):
     def is_valid(self):
         current = datetime.now()
         return current <= self.token_expiration
+
+    def __str__(self):
+	return 'AccessToken:%s' % self.token
