@@ -12,14 +12,13 @@ class RoostClient(object):
         self._load_state()
 
     def _load_state(self):
-        settings = shelve.open("roost.settings")
-        print settings
+        settings = shelve.open("roost.settings.%s" % self.client_id)
         if "user" in settings:
             self.User = settings["user"]
         settings.close()
 
     def _save_state(self):
-        settings = shelve.open("roost.settings")
+        settings = shelve.open("roost.settings.%s" % self.client_id)
         settings["user"] = self.User
         settings.close()
 
