@@ -1,6 +1,6 @@
 import urllib
-from httplib2 import Http
-import simplejson
+import json
+import requests
 from models.access_token import AccessToken
 
 
@@ -24,18 +24,25 @@ class Broker(object):
 
     def request_access_token(self, pincode):
         request_data = self._get_client_data(pincode)
-        http = Http(disable_ssl_certificate_validation=True)
-        headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        response, content = http.request(self.authorize_url, "POST", body=request_data, headers=headers)
-        reply = simplejson.loads(content)
+        response = requests.post(self.authorize_url, data=request_data)
 
-        if response['status'] != "200":
-            if "error_description" in reply:
-                raise NestAccessTokenError("Access token error: %s" % reply["error_description"])
+        content = response.json()        
+        if response.status_code != requests.codes.ok:
+            if "error_description" in content:
+                raise NestAccessTokenError("Access token error: %s" % content.error_description)
             else:
                 raise NestAccessTokenError("The server returned a non-successful response %s" % self.authorize_url)
 
-        return AccessToken(reply["access_token"], reply["expires_in"], pincode=pincode)
+        return AccessToken(content.access_token, content.expires_in, pincode=pincode)
+
+    def request(self, access_token="", body=None, headers=None):
+        headers = headers or {}
+        body = body or {}
+        if not "auth" in body:
+            body.update(auth=access_token)
+        
+        r = requests.get(self.base_url + "/devices", params=body, headers=headers)
+        return r
 
 
 class NestAccessTokenError(Exception):

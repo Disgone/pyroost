@@ -30,3 +30,13 @@ class RoostClient(object):
             self._save_state()
         except NestAccessTokenError as token_error:
             print ("Access Token Request Error: %s" % token_error.description)
+
+    def get_status(self):
+        broker = Broker(self.client_id, self.client_secret)
+        response = broker.request(access_token=self.User.Token.token)
+        print response
+        print response.raw
+        return response
+
+    def save_settings(self):
+	    self._save_state()
