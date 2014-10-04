@@ -22,17 +22,22 @@ class Broker(object):
         self.client_id = client_id
         self.client_secret = client_secret
 
+    def _make_request(self, url, method="GET", data={}, headers={}):
+        response = None
+        if method.upper() == "GET":
+            response = requests.get(url, params=data, headers=headers)
+        elif method.upper() == "POST":
+            response = requests.post(url, data=data, headers=headers)
+        else:
+            raise Exception("Only GET/POST is supported.")
+
+        response.raise_for_status()
+        return response
+
     def request_access_token(self, pincode):
         request_data = self._get_client_data(pincode)
-        response = requests.post(self.authorize_url, data=request_data)
-
-        content = response.json()        
-        if response.status_code != requests.codes.ok:
-            if "error_description" in content:
-                raise NestAccessTokenError("Access token error: %s" % content.error_description)
-            else:
-                raise NestAccessTokenError("The server returned a non-successful response %s" % self.authorize_url)
-
+        response = self._make_request(self.authorize_url, "POST", request_data)
+        content = response.json()
         return AccessToken(content.access_token, content.expires_in, pincode=pincode)
 
     def request(self, access_token="", body=None, headers=None):
@@ -40,9 +45,10 @@ class Broker(object):
         body = body or {}
         if not "auth" in body:
             body.update(auth=access_token)
-        
-        r = requests.get(self.base_url + "/devices", params=body, headers=headers)
-        return r
+
+        url = self.base_url + "/devices"
+        response = self._make_request(url, "GET", body, headers) 
+        return response
 
 
 class NestAccessTokenError(Exception):

@@ -34,8 +34,6 @@ class RoostClient(object):
     def get_status(self):
         broker = Broker(self.client_id, self.client_secret)
         response = broker.request(access_token=self.User.Token.token)
-        print response
-        print response.raw
         return response
 
     def save_settings(self):
