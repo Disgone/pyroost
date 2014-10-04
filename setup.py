@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name="Roost",
-    version="0.1.1",
-    description="Nest API wrapper",
-    author="Shaun Smith",
-    author_email="disgone@gmail.com",
-    install_requires=[
-        "requests"
-    ]
+    name='pyroost',
+    version='0.1.1-alpha',
+    packages=['', 'models'],
+    url='',
+    license='MIT',
+    author='Shaun Smith',
+    author_email='disgone@gmail.com',
+    description='Python wrapper for Nest API'
 )
