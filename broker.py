@@ -1,4 +1,3 @@
-import urllib
 import json
 import requests
 from models.access_token import AccessToken
@@ -16,7 +15,7 @@ class Broker(object):
         }
         if code:
             client_data.update(code=code)
-        return urllib.urlencode(client_data)
+        return client_data
 
     def __init__(self, client_id, client_secret):
         self.client_id = client_id
@@ -36,9 +35,9 @@ class Broker(object):
 
     def request_access_token(self, pincode):
         request_data = self._get_client_data(pincode)
-        response = self._make_request(self.authorize_url, "POST", request_data)
+        response = self._make_request(url=self.authorize_url, method="POST", data=request_data)
         content = response.json()
-        return AccessToken(content.access_token, content.expires_in, pincode=pincode)
+        return AccessToken(content['access_token'], content['expires_in'], pincode=pincode)
 
     def request(self, access_token="", body=None, headers=None):
         headers = headers or {}
@@ -47,7 +46,7 @@ class Broker(object):
             body.update(auth=access_token)
 
         url = self.base_url + "/devices"
-        response = self._make_request(url, "GET", body, headers) 
+        response = self._make_request(url=url, method="GET", data=body, headers=headers) 
         return response
 
 
